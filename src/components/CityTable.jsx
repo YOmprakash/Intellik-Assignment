@@ -1,4 +1,4 @@
-import  { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { CityContext } from "../context/CityContext";
 import { Link } from "react-router-dom";
 import ClipLoader from "react-spinners/ClipLoader";
@@ -7,7 +7,6 @@ import { FaSortUp, FaSortDown } from "react-icons/fa";
 const CityTable = () => {
   const { cities, fetchCities, loading } = useContext(CityContext);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredCities, setFilteredCities] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
@@ -28,15 +27,6 @@ const CityTable = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [loading, hasMore, fetchCities]);
-
-  useEffect(() => {
-    const filtered = cities.filter(
-      (city) =>
-        city.fields.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        city.fields.cou_name_en.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    setFilteredCities(filtered);
-  }, [searchQuery, cities]);
 
   useEffect(() => {
     if (!loading && cities.length % 10 !== 0) {
@@ -68,7 +58,7 @@ const CityTable = () => {
     setSortConfig({ key, direction });
   };
 
-  const sortedCities = [...filteredCities].sort((a, b) => {
+  const sortedCities = [...cities].sort((a, b) => {
     if (sortConfig.key !== null) {
       const fieldA = a.fields[sortConfig.key];
       const fieldB = b.fields[sortConfig.key];
@@ -90,31 +80,34 @@ const CityTable = () => {
       <div className="relative flex justify-center mb-8">
         <input
           type="text"
-          placeholder="Search by city or country..."
+          placeholder="Search by city..."
           className="w-full max-w-md p-3 text-gray-900 bg-white border border-gray-300 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-pink-500"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           onClick={() => setShowSuggestions(true)} // Show suggestions on input click
         />
         {showSuggestions && (
-          <div className="absolute max-w-full mt-4 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg max-h-60">
-            {suggestions.length > 0 ? (
+          <div
+            style={{ top: "100%" }}
+            className="absolute top-0 z-50 w-full max-w-md mt-2 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg max-h-60"
+          >
+            {searchQuery && suggestions.length > 0 ? (
               suggestions.map((city) => (
                 <Link
                   key={city.fields.name}
                   to={`/weather/${city.fields.name}`}
                   className="block px-4 py-2 text-gray-800 hover:bg-gray-100"
                   onClick={() => {
-                    setSearchQuery(city.fields.name);
+                    setSearchQuery("");
                     setShowSuggestions(false);
                   }}
                 >
                   {city.fields.name}
                 </Link>
               ))
-            ) : (
+            ) : searchQuery ? (
               <div className="px-4 py-2 text-gray-600">No suggestions</div>
-            )}
+            ) : null} {/* Hide "No suggestions" when searchQuery is empty */}
           </div>
         )}
       </div>

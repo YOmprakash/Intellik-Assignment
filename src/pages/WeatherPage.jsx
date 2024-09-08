@@ -196,8 +196,8 @@ const WeatherPage = () => {
               )}
 
               {/* Sunrise and Sunset */}
-              <div className="w-full col-span-2 p-4 bg-white rounded-lg shadow-md">
-                <div className="flex items-center justify-between md:px-16">
+              <div className="w-full col-span-2 p-4 bg-white rounded-lg shadow-md md:px-12 md:col-span-3">
+                <div className="flex items-center justify-between">
                   <div className="text-center">
                     <WiSunrise className="mx-auto text-4xl text-yellow-400" />
                     <p className="text-lg text-gray-800">
