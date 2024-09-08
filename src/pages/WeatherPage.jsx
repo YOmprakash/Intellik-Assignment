@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
@@ -15,9 +15,8 @@ import { ClipLoader } from "react-spinners"; // Import the spinner
 
 const WeatherPage = () => {
   const { cityName } = useParams();
-  const navigate = useNavigate(); // To navigate back to home
+  const navigate = useNavigate(); 
   const [weatherData, setWeatherData] = useState(null);
-  const [forecastData, setForecastData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [airQualityData, setAirQualityData] = useState(null);
@@ -30,17 +29,13 @@ const WeatherPage = () => {
         );
         setWeatherData(weatherResponse.data);
 
-        const forecastResponse = await axios.get(
-          `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&appid=78793e454552ba50e695b25ba2d02a4a&units=metric`
-        );
-        setForecastData(forecastResponse.data);
-
         const airQualityResponse = await axios.get(
           `https://api.openweathermap.org/data/2.5/air_pollution?lat=${weatherResponse.data.coord.lat}&lon=${weatherResponse.data.coord.lon}&appid=78793e454552ba50e695b25ba2d02a4a`
         );
         setAirQualityData(airQualityResponse.data);
       } catch (error) {
         setError("Failed to fetch weather data.");
+        console.log(error);
       } finally {
         setLoading(false);
       }
@@ -68,12 +63,7 @@ const WeatherPage = () => {
     );
   }
 
-  if (
-    !weatherData ||
-    weatherData.cod !== 200 ||
-    !forecastData ||
-    !airQualityData
-  ) {
+  if (!weatherData || weatherData.cod !== 200 || !airQualityData) {
     return (
       <div className="text-center">
         <p>Weather or air quality data not available.</p>
@@ -81,14 +71,19 @@ const WeatherPage = () => {
     );
   }
 
+  // Destructure needed data
   const { name, sys, weather, main, wind, visibility } = weatherData;
   const { temp, feels_like, humidity, pressure } = main;
   const { speed: windSpeed } = wind;
+
+  // Utility function to format sunrise/sunset times
   const formatUnixTimestamp = (timestamp) =>
     new Date(timestamp * 1000).toLocaleTimeString("en-US", {
       hour: "2-digit",
       minute: "2-digit",
     });
+
+  // Current day and time
   const currentDay = new Date().toLocaleDateString("en-US", {
     weekday: "long",
     month: "long",
@@ -96,8 +91,20 @@ const WeatherPage = () => {
   });
   const currentTime = new Date().toLocaleTimeString();
 
-  const weatherBg = weather[0].main === "Clear" ? "bg-clear" : "bg-cloudy";
+  // Function to return the background class or image based on weather type
+  const weatherType = weather[0]?.main.toLowerCase();
+  const weatherBgMap = {
+    clear: "bg-clear-sunny", // you can set custom class or image for different weather
+    clouds: "bg-cloudy",
+    rain: "bg-rainy",
+    snow: "bg-snowy",
+    drizzle: "bg-drizzle",
+    thunderstorm: "bg-thunderstorm",
+    smoke: "bg-smoke",
+  };
+  const weatherBgClass = weatherBgMap[weatherType] || "bg-default"; 
 
+  // Function to get air quality status
   const getAirQualityStatus = (aqi) => {
     switch (aqi) {
       case 1:
@@ -116,28 +123,32 @@ const WeatherPage = () => {
   };
 
   return (
-    <div className="container p-6 mx-auto">
+    <div className={`container mx-auto p-4 ${weatherBgClass} h-screen`}>
+      {/* Back Button */}
       <button
-        onClick={() => navigate("/")} // Navigate to home on click
+        onClick={() => navigate("/")}
         className="p-2 mb-4 text-white bg-blue-500 rounded"
       >
         Back to Home
       </button>
-      <h1 className="mb-4 text-3xl font-bold">
+
+      {/* Title */}
+      <h1 className="mb-4 text-3xl font-bold text-center text-white">
         Weather in {name}, {sys.country}
       </h1>
 
-      <div className="flex flex-wrap -mx-4">
-        {/* Left side: Current Weather Section */}
+      {/* Main Weather Section */}
+      <div className="flex flex-wrap justify-center">
         <div className="w-full p-4 lg:w-1/2">
-          <div
-            className={`p-6 bg-gradient-to-r from-blue-400 to-blue-600 rounded-lg shadow-lg ${weatherBg} text-white relative`}
-          >
-            <div className="absolute text-right top-2 right-2">
+          <div className="p-6 text-white rounded-lg shadow-lg bg-opacity-80 bg-gradient-to-r from-blue-400 to-blue-600">
+            {/* Current Date and Time */}
+            <div className="text-right right-2">
               <p className="text-lg text-white">{currentDay}</p>
               <p className="text-2xl font-semibold text-white">{currentTime}</p>
             </div>
-            <div className="text-center">
+
+            {/* Temperature and Description */}
+            <div className="left-0 text-left">
               <h2 className="text-5xl font-bold text-white">{temp}°C</h2>
               <p className="text-xl text-gray-100">
                 {weather[0].main} ({weather[0].description})
@@ -185,6 +196,8 @@ const WeatherPage = () => {
                   <strong>Visibility:</strong> {visibility / 1000} km
                 </p>
               </div>
+
+              {/* Air Quality */}
               {airQualityData && (
                 <div className="p-4 bg-white rounded-lg shadow-md">
                   <WiSmoke className="mx-auto text-4xl text-blue-500" />
@@ -208,7 +221,8 @@ const WeatherPage = () => {
                   <div className="text-center">
                     <WiSunset className="mx-auto text-4xl text-orange-400" />
                     <p className="text-lg text-gray-800">
-                      <strong>Sunset:</strong> {formatUnixTimestamp(sys.sunset)}
+                      <strong>Sunset:</strong>{" "}
+                      {formatUnixTimestamp(sys.sunset)}
                     </p>
                   </div>
                 </div>

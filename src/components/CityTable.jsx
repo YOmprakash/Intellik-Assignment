@@ -34,7 +34,6 @@ const CityTable = () => {
     }
   }, [loading, cities]);
 
-  // Update suggestions based on the search query
   useEffect(() => {
     if (searchQuery) {
       const filteredSuggestions = cities
@@ -76,15 +75,15 @@ const CityTable = () => {
   });
 
   return (
-    <div className="min-h-screen p-8 bg-gradient-to-br from-gray-100 via-white to-gray-200">
-      <div className="relative flex justify-center mb-8">
+    <div className="min-h-screen p-4 sm:p-8 bg-gradient-to-br from-gray-100 via-white to-gray-200">
+      <div className="relative flex justify-center pt-8 mb-4 sm:mb-8">
         <input
           type="text"
           placeholder="Search by city..."
-          className="w-full max-w-md p-3 text-gray-900 bg-white border border-gray-300 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-pink-500"
+          className="w-full max-w-md p-2 text-gray-900 bg-white border border-gray-300 rounded-lg shadow-md sm:p-3 focus:outline-none focus:ring-2 focus:ring-pink-500"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          onClick={() => setShowSuggestions(true)} // Show suggestions on input click
+          onClick={() => setShowSuggestions(true)}
         />
         {showSuggestions && (
           <div
@@ -107,17 +106,17 @@ const CityTable = () => {
               ))
             ) : searchQuery ? (
               <div className="px-4 py-2 text-gray-600">No suggestions</div>
-            ) : null} {/* Hide "No suggestions" when searchQuery is empty */}
+            ) : null}
           </div>
         )}
       </div>
 
       <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow-lg">
-          <thead className="font-bold text-[18px] text-white bg-gradient-to-r from-blue-500 to-green-500">
+        <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow-lg table-auto">
+          <thead className="font-bold text-[16px] sm:text-[18px] text-white bg-gradient-to-r from-blue-500 to-green-500">
             <tr>
               <th
-                className="px-6 py-3 font-semibold text-left border-b border-gray-300 cursor-pointer"
+                className="px-4 py-2 font-semibold text-left border-b border-gray-300 cursor-pointer sm:px-6 sm:py-3"
                 onClick={() => handleSort("name")}
               >
                 City
@@ -128,7 +127,7 @@ const CityTable = () => {
                 )}
               </th>
               <th
-                className="px-6 py-3 font-semibold text-left border-b border-gray-300 cursor-pointer"
+                className="px-4 py-2 font-semibold text-left border-b border-gray-300 cursor-pointer sm:px-6 sm:py-3"
                 onClick={() => handleSort("cou_name_en")}
               >
                 Country
@@ -138,11 +137,11 @@ const CityTable = () => {
                   <FaSortDown className="inline ml-2 text-black" />
                 )}
               </th>
-              <th className="px-6 py-3 font-semibold text-left border-b border-gray-300">
+              <th className="px-4 py-2 font-semibold text-left border-b border-gray-300 sm:px-6 sm:py-3">
                 Timezone
               </th>
               <th
-                className="px-6 py-3 font-semibold text-left border-b border-gray-300 cursor-pointer"
+                className="hidden px-4 py-2 font-semibold text-left border-b border-gray-300 cursor-pointer sm:table-cell sm:px-6 sm:py-3"
                 onClick={() => handleSort("population")}
               >
                 Population
@@ -161,7 +160,7 @@ const CityTable = () => {
                   key={`${city.fields.name}-${city.fields.cou_name_en}-${index}`}
                   className="transition-colors duration-200 cursor-pointer hover:bg-gray-100"
                 >
-                  <td className="px-6 py-4 border-b border-gray-300">
+                  <td className="px-4 py-2 border-b border-gray-300 sm:px-6 sm:py-4">
                     <Link
                       to={`/weather/${city.fields.name}`}
                       className="block w-full h-full"
@@ -169,7 +168,7 @@ const CityTable = () => {
                       {city.fields.name}
                     </Link>
                   </td>
-                  <td className="px-6 py-4 border-b border-gray-300">
+                  <td className="px-4 py-2 border-b border-gray-300 sm:px-6 sm:py-4">
                     <Link
                       to={`/weather/${city.fields.name}`}
                       className="block w-full h-full"
@@ -177,7 +176,7 @@ const CityTable = () => {
                       {city.fields.cou_name_en}
                     </Link>
                   </td>
-                  <td className="px-6 py-4 border-b border-gray-300">
+                  <td className="px-4 py-2 border-b border-gray-300 sm:px-6 sm:py-4">
                     <Link
                       to={`/weather/${city.fields.name}`}
                       className="block w-full h-full"
@@ -185,7 +184,7 @@ const CityTable = () => {
                       {city.fields.timezone}
                     </Link>
                   </td>
-                  <td className="px-6 py-4 border-b border-gray-300">
+                  <td className="hidden px-4 py-2 border-b border-gray-300 sm:table-cell sm:px-6 sm:py-4">
                     <Link
                       to={`/weather/${city.fields.name}`}
                       className="block w-full h-full"
@@ -207,12 +206,6 @@ const CityTable = () => {
       </div>
 
       {loading && !sortedCities.length && (
-        <div className="py-8 text-center">
-          <ClipLoader color="#FF007F" size={50} />
-        </div>
-      )}
-
-      {loading && sortedCities.length > 0 && (
         <div className="py-8 text-center">
           <ClipLoader color="#FF007F" size={50} />
         </div>
